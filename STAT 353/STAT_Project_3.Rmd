@@ -1,0 +1,55 @@
+---
+title: "STAT_Project_3"
+author: "Charles Beck Christensen"
+date: "2023-11-30"
+output: html_document
+---
+
+library(readxl)
+HomesForSale <- read_excel("C:/Users/cbchr/Downloads/HomesForSale.xlsx")
+
+
+#i). Use the data only for California. How much does the size of a home influence its price?
+
+homes_CA <- subset(HomesForSale, State == "CA")
+
+cor.test(homes_CA$Size, homes_CA$Price, method = "pearson")
+
+lm_size_price <- lm(Price ~ Size, data = homes_CA)
+summary(lm_size_price)
+
+
+#ii). Use the data only for California. How does the number of bedrooms of a home influence its price?
+
+lm_bedrooms_price <- lm(Price ~ Beds, data = homes_CA)
+summary(lm_bedrooms_price)
+
+
+#iii). Use the data only for California. How does the number of bathrooms of a home influence its price?
+
+lm_bathrooms_price <- lm(Price ~ Baths, data = homes_CA)
+summary(lm_bathrooms_price)
+
+
+#iv). Use the data only for California. How do the size,  the number of bedrooms, and  the number of bathrooms of a home jointly influence its price?
+
+lm_joint <- lm(Price ~ Size + Beds + Baths, data = homes_CA)
+summary(lm_joint)
+
+
+#v). Are there significant differences in home prices among the four states (CA, NY, NJ, PA)? This will help you determine if the state in which a home is located has a significant impact on its price. All data should be used.
+
+HomesForSale$State <- as.factor(HomesForSale$State)
+
+# ANOVA to test if there are significant differences among states
+anova_model <- aov(Price ~ State, data = HomesForSale)
+summary(anova_model)
+
+# Post-hoc tests to see which states differ
+# Install the 'multcomp' package if not already installed
+#install.packages("multcomp")
+library(multcomp)
+post_hoc <- glht(anova_model, linfct = mcp(State = "Tukey"))
+summary(post_hoc)
+
+
